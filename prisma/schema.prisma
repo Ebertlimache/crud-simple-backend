@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TipoContribuyente {
+  idTipoContribuyente Int       @id @default(autoincrement()) @map("id_tipo_contribuyente")
+  nombre              String    @db.VarChar(50)
+  estado              Boolean
+  entidades          Entidad[]
+
+  @@map("tb_tipo_contribuyente")
+}
+
+model TipoDocumento {
+  idTipoDocumento Int       @id @default(autoincrement()) @map("id_tipo_documento")
+  codigo          String    @db.VarChar(20)
+  nombre          String    @db.VarChar(100)
+  descripcion     String?   @db.VarChar(200)
+  estado          Boolean   @default(true)
+  entidades       Entidad[]
+
+  @@map("tb_tipo_documento")
+}
+
+model Entidad {
+  idEntidad          Int       @id @default(autoincrement()) @map("id_entidad")
+  idTipoDocumento    Int       @map("id_tipo_documento")
+  nroDocumento      String    @unique @map("nro_documento") @db.VarChar(25)
+  razonSocial       String    @map("razon_social") @db.VarChar(100)
+  nombreComercial   String?   @map("nombre_comercial") @db.VarChar(100)
+  idTipoContribuyente Int?    @map("id_tipo_contribuyente")
+  direccion         String?   @db.VarChar(250)
+  telefono          String?   @db.VarChar(50)
+  estado            Boolean   @default(true)
+  tipoDocumento     TipoDocumento    @relation(fields: [idTipoDocumento], references: [idTipoDocumento], onDelete: NoAction, onUpdate: NoAction)
+  tipoContribuyente TipoContribuyente? @relation(fields: [idTipoContribuyente], references: [idTipoContribuyente], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("tb_entidad")
+}
